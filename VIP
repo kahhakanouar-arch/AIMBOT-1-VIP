@@ -1,4 +1,4 @@
--- Anouar777x Hub - ESP + Protect Friends + Aimbot Head / Torso / Right Arm / Auto Switch (Head ↔ Torso)
+-- Anouar777x Hub - ESP + Protect Friends + Aimbot Head / Torso / Right Arm / Left Arm / Auto Switch (Head ↔ Torso) / Auto Switch (Right ↔ Left Arm)
 -- ANOUAR IS THE KING 👑
 
 local Players = game:GetService("Players")
@@ -12,7 +12,7 @@ local AllowedIDs = {
     9212376227, 5457204971, 3404223012, 9221990104, 10174280415,
     8324859397, 3123124422, 9999999990, 9229999999, 8305396045,
     10053926792, 9090295546, 10230482489, 9183871127, 10290977351,
-    9030856047,10350312793,3599536907,10439467726,0,0,0,0,0,0,0,0,0,0,0
+    9030856047, 10350312793, 3599536907, 10439467726, 0,0,0,0,0,0,0,0,0,0,0
 }
 
 local function isAllowed()
@@ -25,7 +25,7 @@ end
 if not isAllowed() then
     game:GetService("StarterGui"):SetCore("SendNotification", {
         Title = "❌ Access Denied",
-        Text = "Your ID ("..Player.UserId..") is not authorized! Contact Anouar777x.",
+        Text = "Your ID (" .. Player.UserId .. ") is not authorized! Contact Anouar777x.",
         Duration = 10
     })
     return
@@ -51,7 +51,7 @@ local ProtectedLabel = Instance.new("TextLabel", MainFrame)
 ProtectedLabel.Size = UDim2.new(0.8,0,0.08,0)
 ProtectedLabel.Position = UDim2.new(0.1,0,0.02,0)
 ProtectedLabel.BackgroundTransparency = 1
-ProtectedLabel.Text = "Protected: 0 | ID: "..Player.UserId.." (30 slots)"
+ProtectedLabel.Text = "Protected: 0 | ID: " .. Player.UserId .. " (30 slots)"
 ProtectedLabel.TextColor3 = Color3.fromRGB(0,255,0)
 ProtectedLabel.TextScaled = true
 ProtectedLabel.Font = Enum.Font.SourceSansBold
@@ -146,10 +146,13 @@ FOVCircle.Visible = false
 
 -- Aimbot modes
 local AIM_MODES = {
-    {name = "Head (fixed)", part = "Head", color = Color3.fromRGB(100,100,255)},
-    {name = "Torso (fixed)", part = "HumanoidRootPart", color = Color3.fromRGB(255,150,50)},
-    {name = "Right Arm (fixed)", part = "RightUpperArm", color = Color3.fromRGB(50,205,50)},
-    {name = "Auto Switch (Head ↔ Torso)", parts = {"Head", "HumanoidRootPart"}, color = Color3.fromRGB(180,100,255)}
+    {name = "Head (fixed)",               part = "Head",                        color = Color3.fromRGB(100,100,255)},
+    {name = "Torso (fixed)",              part = "HumanoidRootPart",            color = Color3.fromRGB(255,150,50)},
+    {name = "Right Arm (fixed)",          part = "RightUpperArm",               color = Color3.fromRGB(50,205,50)},
+    {name = "Left Arm (fixed)",           part = "LeftUpperArm",                color = Color3.fromRGB(50,255,150)},
+    {name = "Auto Switch (Head ↔ Torso)", parts = {"Head", "HumanoidRootPart"}, color = Color3.fromRGB(180,100,255)},
+    {name = "Auto Switch (Right Arm ↔ Left Arm)", 
+        parts = {"RightUpperArm", "LeftUpperArm"},                              color = Color3.fromRGB(255, 255, 0)}  -- JAUNE ici
 }
 
 local currentModeIndex = 1
@@ -178,8 +181,12 @@ end
 local function removeESP(char)
     if char then
         local head = char:FindFirstChild("Head")
-        if head then local b = head:FindFirstChild("AnouarNameHP") if b then b:Destroy() end end
-        local h = char:FindFirstChild("AnouarHighlight") if h then h:Destroy() end
+        if head then 
+            local b = head:FindFirstChild("AnouarNameHP") 
+            if b then b:Destroy() end 
+        end
+        local h = char:FindFirstChild("AnouarHighlight") 
+        if h then h:Destroy() end
     end
 end
 
@@ -202,7 +209,7 @@ local function applyESP(char)
     local name = Instance.new("TextLabel", bill)
     name.Size = UDim2.new(1,0,0,16)
     name.BackgroundTransparency = 1
-    name.Text = plr.DisplayName ~= plr.Name and (plr.DisplayName.." (@"..plr.Name..")") or plr.Name
+    name.Text = plr.DisplayName ~= plr.Name and (plr.DisplayName .. " (@" .. plr.Name .. ")") or plr.Name
     name.TextColor3 = Color3.new(1,1,1)
     name.TextStrokeTransparency = 0
     name.Font = Enum.Font.SourceSansBold
@@ -228,9 +235,9 @@ local function applyESP(char)
 
     local function updateHP()
         if hum.Parent and IsAlive(char) then
-            local r = math.clamp(hum.Health/hum.MaxHealth,0,1)
-            hpFill.Size = UDim2.new(r,0,1,0)
-            hpText.Text = math.floor(hum.Health).."/"..hum.MaxHealth
+            local r = math.clamp(hum.Health / hum.MaxHealth, 0, 1)
+            hpFill.Size = UDim2.new(r, 0, 1, 0)
+            hpText.Text = math.floor(hum.Health) .. "/" .. hum.MaxHealth
         else
             removeESP(char)
         end
@@ -284,11 +291,15 @@ end)
 
 ESPToggle.MouseButton1Click:Connect(function()
     espEnabled = not espEnabled
-    ESPToggle.Text = "ESP: "..(espEnabled and "ON" or "OFF")
+    ESPToggle.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
     ESPToggle.BackgroundColor3 = espEnabled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
     for _, p in Players:GetPlayers() do
         if p ~= Player and p.Character then
-            if espEnabled then applyESP(p.Character) else removeESP(p.Character) end
+            if espEnabled then 
+                applyESP(p.Character) 
+            else 
+                removeESP(p.Character) 
+            end
         end
     end
 end)
@@ -303,7 +314,7 @@ local function UpdateProtectedList()
             btn.Size = UDim2.new(1,-10,0,30)
             local prot = ProtectedPlayers[p] or false
             btn.BackgroundColor3 = prot and Color3.fromRGB(0,100,255) or Color3.fromRGB(60,60,60)
-            btn.Text = p.DisplayName .. " (@"..p.Name..")" .. (prot and " ✔" or "")
+            btn.Text = p.DisplayName .. " (@" .. p.Name .. ")" .. (prot and " ✔" or "")
             btn.TextColor3 = Color3.new(1,1,1)
             btn.TextScaled = true
             Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
@@ -315,8 +326,9 @@ local function UpdateProtectedList()
             end)
         end
     end
-    local count = 0 for _ in pairs(ProtectedPlayers) do count = count + 1 end
-    ProtectedLabel.Text = "Protected: "..count.." | ID: "..Player.UserId.." (30 slots)"
+    local count = 0 
+    for _ in pairs(ProtectedPlayers) do count = count + 1 end
+    ProtectedLabel.Text = "Protected: " .. count .. " | ID: " .. Player.UserId .. " (30 slots)"
 end
 
 Players.PlayerAdded:Connect(UpdateProtectedList)
@@ -335,9 +347,13 @@ local function GetTargetPart(char)
     end
 
     local part = char:FindFirstChild(partName)
-    if not part and partName == "RightUpperArm" then
-        part = char:FindFirstChild("Right Arm")
+    
+    -- Fallback for R6 / legacy names
+    if not part then
+        if partName == "RightUpperArm" then part = char:FindFirstChild("Right Arm") end
+        if partName == "LeftUpperArm"   then part = char:FindFirstChild("Left Arm") end
     end
+    
     return part or char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
 end
 
@@ -349,8 +365,8 @@ local function GetClosest()
         if p ~= Player and not ProtectedPlayers[p] and p.Character and IsAlive(p.Character) then
             local part = GetTargetPart(p.Character)
             if part then
-                local screenPos, visible = Camera:WorldToViewportPoint(part.Position)
-                if visible then
+                local screenPos, onScreen = Camera:WorldToViewportPoint(part.Position)
+                if onScreen then
                     local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
                     if dist < distMin and dist <= FOVRadius then
                         if not WallCheckEnabled or IsVisible(part) then
@@ -382,7 +398,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Auto switch only in "Auto Switch" mode
+-- Auto switch logic (only for auto modes)
 RunService.Heartbeat:Connect(function(dt)
     if not AimbotOn then return end
     local mode = AIM_MODES[currentModeIndex]
@@ -398,20 +414,20 @@ end)
 -- === BUTTONS ===
 AimbotToggle.MouseButton1Click:Connect(function()
     AimbotOn = not AimbotOn
-    AimbotToggle.Text = "Aimbot: "..(AimbotOn and "ON" or "OFF")
+    AimbotToggle.Text = "Aimbot: " .. (AimbotOn and "ON" or "OFF")
     AimbotToggle.BackgroundColor3 = AimbotOn and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,0,0)
 end)
 
 AimPartToggle.MouseButton1Click:Connect(function()
     currentModeIndex = currentModeIndex % #AIM_MODES + 1
     local mode = AIM_MODES[currentModeIndex]
-    AimPartToggle.Text = "Target: "..mode.name
-    AimPartToggle.BackgroundColor3 = mode.color
+    AimPartToggle.Text = "Target: " .. mode.name
+    AimPartToggle.BackgroundColor3 = mode.color   -- ← le bouton prend la couleur jaune quand tu sélectionnes ce mode
 end)
 
 WallcheckToggle.MouseButton1Click:Connect(function()
     WallCheckEnabled = not WallCheckEnabled
-    WallcheckToggle.Text = "Wallcheck: "..(WallCheckEnabled and "ON" or "OFF")
+    WallcheckToggle.Text = "Wallcheck: " .. (WallCheckEnabled and "ON" or "OFF")
     WallcheckToggle.BackgroundColor3 = WallCheckEnabled and Color3.fromRGB(0,255,0) or Color3.fromRGB(255,100,100)
 end)
 
@@ -421,9 +437,9 @@ FOVSlider.FocusLost:Connect(function(enterPressed)
         if num and num >= 20 and num <= 600 then
             FOVRadius = num
             FOVCircle.Radius = num
-            FOVSlider.Text = "FOV: "..num
+            FOVSlider.Text = "FOV: " .. num
         else
-            FOVSlider.Text = "FOV: "..FOVRadius
+            FOVSlider.Text = "FOV: " .. FOVRadius
         end
     end
 end)
@@ -464,4 +480,4 @@ end
 makeDraggable(MainFrame, MainDrag)
 makeDraggable(ToggleButton, ToggleDrag)
 
-print("Anouar777x Hub LOADED - Auto switch Head ↔ Torso only")
+print("Anouar777x Hub LOADED - Auto switch Right ↔ Left Arm in YELLOW")
